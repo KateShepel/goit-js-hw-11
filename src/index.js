@@ -35,6 +35,7 @@ function onSearch(e) {
     totalHitsMessage(imgsApiService.totalHits);
     createGallery(imgs);
     lightbox.refresh();
+    showLoadMoreBtn();
   });
 }
 
@@ -113,4 +114,8 @@ function imagesTpl(items) {
 
 function clearGallery() {
   refs.gallery.innerHTML = '';
+}
+
+function showLoadMoreBtn() {
+  refs.loadMoreBtn.classList.add("show");
 }

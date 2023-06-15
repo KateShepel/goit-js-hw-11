@@ -84,6 +84,11 @@ input {
   color: #fff;
   border-radius: 5px;
   background-color: darkslateblue;
+  display: none;
+}
+
+.show {
+  display: block;
 }
 
 .search {
