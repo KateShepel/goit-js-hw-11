@@ -1,7 +1,7 @@
 import ImgsApiService from './api/onSearch';
 import Notiflix from 'notiflix';
 import SimpleLightbox from 'simplelightbox';
-import InfiniteScroll from 'infinite-scroll';
+import debounce from 'lodash.debounce';
 
 const refs = {
   searchForm: document.querySelector('.search-form'),
@@ -11,11 +11,6 @@ const refs = {
 };
 const imgsApiService = new ImgsApiService();
 const lightbox = new SimpleLightbox('.gallery a');
-const infScroll = new InfiniteScroll(refs.gallery, {
-  path: '.pagination__next',
-  append: '.post',
-  history: false,
-});
 
 function onSearch(e) {
   e.preventDefault();
@@ -38,7 +33,6 @@ function onSearch(e) {
     totalHitsMessage(imgsApiService.totalHits);
     createGallery(imgs);
     lightbox.refresh();
-    showLoadMoreBtn();
   });
 }
 
@@ -56,19 +50,19 @@ function scrollToTop() {
   });
 }
 
-function scrollSmooth() {
-  const { height: cardHeight } =
-    refs.gallery.firstElementChild.getBoundingClientRect();
-  window.scrollBy({
-    top: cardHeight * 2,
-    behavior: 'smooth',
-  });
-}
-
 function infoMessage() {
   Notiflix.Notify.failure(
     'Sorry, there are no images matching your search query. Please try again.'
   );
+}
+
+function scrollSmooth() {
+  const { height: cardHeight } =
+    refs.gallery.firstElementChild.getBoundingClientRect();
+  refs.gallery.scrollBy({
+    top: cardHeight * 2,
+    behavior: 'smooth',
+  });
 }
 
 function totalHitsMessage(info) {
@@ -116,9 +110,13 @@ function clearGallery() {
   refs.gallery.innerHTML = '';
 }
 
-function showLoadMoreBtn() {
-  refs.loadMoreBtn.classList.add('show');
+function onScroll(e) {
+  const { scrollHeight, scrollTop, offsetHeight } = e.target;
+  const bottom = offsetHeight + scrollTop;
+  if (scrollHeight - bottom < 1) {
+    onLoadMore();
+  }
 }
 
 refs.searchForm.addEventListener('submit', onSearch);
-refs.loadMoreBtn.addEventListener('click', onLoadMore);
+refs.gallery.addEventListener('scroll', debounce(onScroll, 300));

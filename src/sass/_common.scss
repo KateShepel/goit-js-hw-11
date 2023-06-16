@@ -9,22 +9,12 @@ body {
   font-size: 14px;
 }
 
-main {
-  padding-left: 10px;
-  padding-right: 10px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
 header {
   background-color: darkslateblue;
   display: flex;
   justify-content: center;
-  padding-top: 10px;
-  padding-bottom: 10px;
-  position: sticky;
-  top: 0;
+  align-items: center;
+  height: 5vh;
 }
 
 img {
@@ -70,9 +60,13 @@ input {
 }
 
 .gallery {
+  overflow-y: scroll;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   grid-gap: 15px;
+  padding-left: 10px;
+  padding-right: 10px;
+  max-height: 95vh;
 }
 
 .load-more {
@@ -85,10 +79,6 @@ input {
   border-radius: 5px;
   background-color: darkslateblue;
   display: none;
-}
-
-.show {
-  display: block;
 }
 
 .search {
