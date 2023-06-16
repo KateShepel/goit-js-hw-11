@@ -1,6 +1,7 @@
 import ImgsApiService from './api/onSearch';
 import Notiflix from 'notiflix';
 import SimpleLightbox from 'simplelightbox';
+import InfiniteScroll from 'infinite-scroll';
 
 const refs = {
   searchForm: document.querySelector('.search-form'),
@@ -9,10 +10,12 @@ const refs = {
   body: document.querySelector('body'),
 };
 const imgsApiService = new ImgsApiService();
-var lightbox = new SimpleLightbox('.gallery a');
-
-refs.searchForm.addEventListener('submit', onSearch);
-refs.loadMoreBtn.addEventListener('click', onLoadMore);
+const lightbox = new SimpleLightbox('.gallery a');
+const infScroll = new InfiniteScroll(refs.gallery, {
+  path: '.pagination__next',
+  append: '.post',
+  history: false,
+});
 
 function onSearch(e) {
   e.preventDefault();
@@ -39,15 +42,12 @@ function onSearch(e) {
   });
 }
 
-function onLoadMore() {
-  imgsApiService
-    .fetchArticles()
-    .then(createGallery)
-    .then(() => {
-      lightbox.refresh();
-      scrollSmooth();
-    });
-}
+const onLoadMore = async () => {
+  const items = await imgsApiService.fetchArticles();
+  createGallery(items);
+  lightbox.refresh();
+  scrollSmooth();
+};
 
 function scrollToTop() {
   window.scrollTo({
@@ -117,5 +117,8 @@ function clearGallery() {
 }
 
 function showLoadMoreBtn() {
-  refs.loadMoreBtn.classList.add("show");
+  refs.loadMoreBtn.classList.add('show');
 }
+
+refs.searchForm.addEventListener('submit', onSearch);
+refs.loadMoreBtn.addEventListener('click', onLoadMore);

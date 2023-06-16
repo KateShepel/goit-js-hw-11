@@ -8,16 +8,22 @@ export default class ImgApiService {
     this._totalHits = 0;
   }
 
-  fetchArticles() {
+  async fetchArticles() {
     const url = `${BASE_URL}/?key=${API_KEY}&q=${this.searchQuery}&image_type=photo&orientation=horizontal&safesearch=true&per_page=40&page=${this.page}`;
 
-    return fetch(url)
-      .then(result => result.json())
-      .then( images  => {
-        this.incrementPage();
-        this._totalHits = images.totalHits;
-        return images.hits;
-      });
+    const res = await fetch(url);
+    const images = await res.json();
+    this.incrementPage();
+    this._totalHits = images.totalHits;
+    return images.hits;
+
+    // return fetch(url)
+    //   .then(result => result.json())
+    //   .then( images  => {
+    //     this.incrementPage();
+    //     this._totalHits = images.totalHits;
+    //     return images.hits;
+    //   });
   }
 
   incrementPage() {
@@ -40,3 +46,15 @@ export default class ImgApiService {
     return this._totalHits;
   }
 }
+
+// const thenFetch = () => {
+//   return fetch()
+//     .then(res => res.json())
+//     .then(res => res.id);
+// };
+
+// const asyncFetch = async () => {
+//   const res = await fetch();
+//   const resJson = await res.json();
+//   return await resJson.id;
+// };
