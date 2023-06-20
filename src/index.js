@@ -1,4 +1,4 @@
-import ImgsApiService from './api/onSearch';
+import ImgsApiService from './api/imgApiService';
 import Notiflix from 'notiflix';
 import SimpleLightbox from 'simplelightbox';
 import debounce from 'lodash.debounce';
@@ -8,11 +8,13 @@ const refs = {
   gallery: document.querySelector('.gallery'),
   loadMoreBtn: document.querySelector('.load-more'),
   body: document.querySelector('body'),
+  endOfList: document.querySelector('.end-of-list'),
+  main: document.querySelector('main'),
 };
 const imgsApiService = new ImgsApiService();
 const lightbox = new SimpleLightbox('.gallery a');
 
-function onSearch(e) {
+async function onSearch(e) {
   e.preventDefault();
 
   imgsApiService.query = e.currentTarget.elements.searchQuery.value;
@@ -23,17 +25,18 @@ function onSearch(e) {
   }
 
   imgsApiService.resetPage();
-  imgsApiService.fetchArticles().then(imgs => {
-    if (imgsApiService.totalHits === 0) {
-      infoMessage();
-      return;
-    }
-    clearGallery();
-    scrollToTop();
-    totalHitsMessage(imgsApiService.totalHits);
-    createGallery(imgs);
-    lightbox.refresh();
-  });
+
+  const imgs = await imgsApiService.fetchArticles();
+  if (imgsApiService.totalHits === 0) {
+    infoMessage();
+    return;
+  }
+  clearGallery();
+  scrollToTop();
+  totalHitsMessage(imgsApiService.totalHits);
+  createGallery(imgs);
+  showEndOfList();
+  lightbox.refresh();
 }
 
 const onLoadMore = async () => {
@@ -41,6 +44,7 @@ const onLoadMore = async () => {
   createGallery(items);
   lightbox.refresh();
   scrollSmooth();
+  showEndOfList();
 };
 
 function scrollToTop() {
@@ -59,7 +63,7 @@ function infoMessage() {
 function scrollSmooth() {
   const { height: cardHeight } =
     refs.gallery.firstElementChild.getBoundingClientRect();
-  refs.gallery.scrollBy({
+  refs.main.scrollBy({
     top: cardHeight * 2,
     behavior: 'smooth',
   });
@@ -108,6 +112,7 @@ function imagesTpl(items) {
 
 function clearGallery() {
   refs.gallery.innerHTML = '';
+  hideEndOfList();
 }
 
 function onScroll(e) {
@@ -118,5 +123,15 @@ function onScroll(e) {
   }
 }
 
+function showEndOfList() {
+  if (imgsApiService.isEndOfPage()) {
+    refs.endOfList.classList.remove('isHidden');
+  }
+}
+
+function hideEndOfList() {
+  refs.endOfList.classList.add('isHidden');
+}
+
 refs.searchForm.addEventListener('submit', onSearch);
-refs.gallery.addEventListener('scroll', debounce(onScroll, 300));
+refs.main.addEventListener('scroll', debounce(onScroll, 300));

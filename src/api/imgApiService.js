@@ -5,11 +5,12 @@ export default class ImgApiService {
   constructor() {
     this.searchQuery = '';
     this.page = 1;
+    this.per_page = 12;
     this._totalHits = 0;
   }
 
   async fetchArticles() {
-    const url = `${BASE_URL}/?key=${API_KEY}&q=${this.searchQuery}&image_type=photo&orientation=horizontal&safesearch=true&per_page=12&page=${this.page}`;
+    const url = `${BASE_URL}/?key=${API_KEY}&q=${this.searchQuery}&image_type=photo&orientation=horizontal&safesearch=true&per_page=${this.per_page}&page=${this.page}`;
 
     const res = await fetch(url);
     const images = await res.json();
@@ -36,6 +37,10 @@ export default class ImgApiService {
 
   get totalHits() {
     return this._totalHits;
+  }
+
+  isEndOfPage() {
+    return (this.page - 1) * this.per_page >= this._totalHits;
   }
 }
 
